@@ -1,14 +1,6 @@
 # Part 1 answer: mwzaxaj
 # Part 2 answer: 1219
 
-# Name, Weight, Children
-# Problem: which node is the root node?
-
-# Representation:
-# Node with a name, a weight, and a list or dictionary of children, and a parent.
-# A dictionary with all the nodes.
-# Find a node, then assign it children.
-# How to find out which node is parent? - Loop through the dictionary, find the only node with no parents.
 import unittest
 import re
 
@@ -17,7 +9,6 @@ node_dict = {}
 
 class Node:
     def __init__(self, name, weight, children, parent=None):
-        # When adding children, add the name of this node as the parent.
         self.name = name
         self.weight = weight
         self.children = self.create_children(children or [])
