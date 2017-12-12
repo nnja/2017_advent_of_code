@@ -1,19 +1,21 @@
+# Part1: 648042 or 12803
+# Part2: 6425
+
 def calc_groups(input): 
     total_score = current_score = 0
     skip_next = False
-    dont_icr_score = False
     in_garbage = False
     total_garbage = 0
 
     stack = []
+    garbage_stack = []
 
     for char in input:
-        # import ipdb; ipdb.set_trace()
         peek = '' if not stack else stack[-1]
         is_garbage = peek == '<'
 
         if is_garbage and not skip_next and not char == '!':
-            total_garbage += 1
+            garbage_stack.append(char)
 
         if skip_next:
             skip_next = False
@@ -21,10 +23,7 @@ def calc_groups(input):
         elif char == '{':
             if not is_garbage:
                 stack.append('{')
-                if not dont_icr_score:
-                    current_score += 1
-                dont_icr_score = False
-                total_score += current_score
+                total_score += len(stack)
         elif char == '}':
             if not is_garbage:
                 stack.pop()
@@ -34,13 +33,14 @@ def calc_groups(input):
                 stack.append('<')
         elif char == '>':
             stack.pop()
-            total_garbage -= 1
+            if garbage_stack:
+                garbage_stack.pop()
+
         elif char == '!':
             skip_next = True
-        elif char == ',':
-            dont_icr_score = True
 
-    return total_score, total_garbage
+    print total_score, len(garbage_stack)
+    return total_score, len(garbage_stack)
 
 
 # Assertions calculating the number of groups
@@ -63,9 +63,6 @@ assert 9 == calc_groups('{{<ab>},{<ab>},{<ab>},{<ab>}}')[0]
 assert 9 == calc_groups('{{<!!>},{<!!>},{<!!>},{<!!>}}')[0]
 assert 3 == calc_groups('{{<a!>},{<a!>},{<a!>},{<ab>}}')[0]
 
-print('Part1: %s' % calc_groups(open('input.txt').read())[0])
-print('Part2: %s' % calc_groups(open('input.txt').read())[1])
-
 assert 0 == calc_groups('<>')[1]
 assert 17 == calc_groups('<random characters>')[1]
 assert 3 == calc_groups('<<<<>')[1]
@@ -73,3 +70,10 @@ assert 2 == calc_groups('<{!>}>')[1]
 assert 0 == calc_groups('!!')[1]
 assert 0 == calc_groups('<!!!>>')[1]
 assert 10 == calc_groups('<{o"i!a,<{i<a>')[1]
+
+part1 = calc_groups(open('input.txt').read())[0]
+part2 = calc_groups(open('input.txt').read())[1]
+assert part1 == 648042
+assert part2 == 6425
+# print('Part1: %s' % part1)
+# print('Part2: %s' % part2)
