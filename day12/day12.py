@@ -3,38 +3,15 @@ import networkx as nx
 
 regex = '(.*) <-> (.*)'
 
-def day12(input):
-    G = nx.MultiDiGraph()
+def day12(lines):
+    G = nx.MultiGraph()
 
-    for line in input.strip().split('\n'):
+    for line in lines:
         key, values = re.match(regex, line).groups()
-        values = [value.strip() for value in values.split(',')]
+        import ipdb; ipdb.set_trace()
+        G.add_edges_from((key, v) for v in values.split(', '))
 
-        for value in values:
-            G.add_edge(key, value)
+    print 'Part1:', len(nx.node_connected_component(G, '0'))
+    print 'Part2:', nx.number_connected_components(G)
 
-    num_connected = 0
-
-    for node in G.nodes.keys():
-        try:
-            nx.bidirectional_shortest_path(G, '0', node)
-            num_connected += 1
-        except:
-            pass
-
-    return num_connected
-
-
-input = """
-0 <-> 2
-1 <-> 1
-2 <-> 0, 3, 4
-3 <-> 2, 4
-4 <-> 2, 3, 6
-5 <-> 6
-6 <-> 4, 5
-"""
-
-assert day12(input) == 6
-
-print 'Part1:', day12(open('input.txt').read().strip())
+day12(open('input.txt').readlines())
