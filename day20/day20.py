@@ -1,14 +1,19 @@
 # Answer Part 1: 157
-from collections import namedtuple
+# Answer Part 2: 499
+from collections import namedtuple, defaultdict
 import re
 from pprint import pprint
+import itertools
+
 
 class Coord(namedtuple('Coord', 'x, y z')):
 
     def __repr__(self):
         return '{},{},{}'.format(self.x, self.y, self.z)
 
+
 pattern = 'p=<(\S*),(\S*),(\S*)>, v=<(\S*),(\S*),(\S*)>, a=<(\S*),(\S*),(\S*)>'
+
 
 def update_particle(particle):
     particle['velocity'] = Coord(
@@ -24,39 +29,38 @@ def update_particle(particle):
     )
 
 
-def calc_distance_from_origin(particle):
-    return (abs(particle['pos'].x)
-            + abs(particle['pos'].y)
-            + abs(particle['pos'].z)
-)
-
 def day20(lines):
     particles = []
+    num_no_collisions = 0
     for line in lines:
+        if not line.split(): continue
+
         coords = list(map(int, re.match(pattern, line).groups()))
         pos = Coord(coords[0], coords[1], coords[2])
         vel = Coord(coords[3], coords[4], coords[5])
         acc = Coord(coords[6], coords[7], coords[8])
         particles.append({'velocity': vel, 'acceleration': acc, 'pos': pos})
 
-    for i in range(10000):
-        if i % 10000 == 0:
-            print('.')
+    while True:
+        for particle in particles:
+            update_particle(particle)
 
-        map(update_particle, particles)
+        positions = defaultdict(list)
+        for index, particle in enumerate(particles):
+            pos = particle['pos']
+            positions[pos] += [index]
 
-        min_pos = -1
-        min_distance = 1000000000000000
-        for pos, particle in enumerate(particles):
-            distance = calc_distance_from_origin(particle)
-            if distance < min_distance:
-                min_distance = distance
-                min_pos = pos
+        to_remove = sorted(itertools.chain(*[i for i in positions.values() if len(i) > 1]), reverse=True)
 
-    return min_pos
+        for i in to_remove:
+            del particles[i]
 
-test_input = ("""p=<3,0,0>, v=<2,0,0>, a=<-1,0,0>
-p=<4,0,0>, v=<0,0,0>, a=<-2,0,0>""")
-input = test_input.splitlines()
+        if not to_remove:
+            num_no_collisions += 1
+
+        if num_no_collisions > 500:  # Wild guess as to how many times we need to run to ensure no collisions
+            return len(particles)
+
+
 input = open('input.txt').readlines()
-print('Part 1',  day20(input))
+print('Part 2',  day20(input))
