@@ -1,4 +1,5 @@
 # answer part1: 5433
+# answer part2: 2512599
 import pprint
 
 left = 'left'
@@ -44,7 +45,7 @@ def day22(input):
     y = center
     counter = 0
 
-    for i in range(10000):
+    for i in range(10000000):
         curr_node = grid[y][x]
 
         if curr_node == infected:  # turn to the right
@@ -53,13 +54,25 @@ def day22(input):
             elif direction == right: direction = down
             elif direction == down:direction = left
 
-            grid[y][x] = clean
+            grid[y][x] = flagged
+
         elif curr_node == clean:  # turn to the left
             if direction == left: direction = down
             elif direction == up: direction = left
             elif direction == right: direction = up
             elif direction == down: direction = right
 
+            grid[y][x] = weakened
+
+        elif curr_node == flagged:
+            if direction == up: direction = down
+            elif direction == down: direction = up
+            elif direction == left: direction = right
+            elif direction == right: direction = left
+
+            grid[y][x] = clean
+
+        elif curr_node == weakened:
             grid[y][x] = infected
             counter += 1
 
@@ -67,8 +80,6 @@ def day22(input):
         x, y = expand(grid, x, y)
 
     return counter
-
-
 
 test_input = (
 """
